@@ -288,7 +288,7 @@ namespace PlayField
             Console.WriteLine("I'll now \"undo\" my changes, and revert back to normal: ");
             ShowTable(ds, 0);
             Show();
-
+            
             Console.ReadLine();
         }
     }
