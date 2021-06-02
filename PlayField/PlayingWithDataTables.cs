@@ -42,8 +42,6 @@ namespace PlayField
             Console.WriteLine();
         }
 
-
-
         private static void MakeDataRelation()
         {
             DataColumn parentColumn = ds.Tables["ParentTable"].Columns["id"];
