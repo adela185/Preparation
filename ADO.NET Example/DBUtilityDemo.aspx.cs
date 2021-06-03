@@ -26,10 +26,34 @@ namespace ADO.NET_Example
         {
             if (!IsPostBack)
             {
-                StronglyTypedDataSetLoad();
+                Load();
+                //StronglyTypedDataSetLoad();
                 //await PageLoadLINQ();
                 //await PageLoadReg(); 
             }
+        }
+
+        private void Load()
+        {
+            ds = dbUtility.MergeEx();
+            Session["DATASET"] = ds;
+
+            if (ds != null)
+                gvColor.DataSource = ds;
+            else
+                ltReport.Text = "Error: Gridview Datasource null.";
+
+            gvColor.DataBind();
+        }
+
+        private void DataBind(DataSet ds)
+        {
+            if (ds != null)
+                gvColor.DataSource = ds;
+            else
+                ltReport.Text = "Error: Gridview Datasource null.";
+
+            gvColor.DataBind();
         }
 
         private void StronglyTypedDataSetLoad()
@@ -220,6 +244,14 @@ namespace ADO.NET_Example
         {
             //GridViewFiltering();
             GridViewFilteringWithStronglyTypedDataSets();
+        }
+
+        protected void btnUpdateDB_Click(object sender, EventArgs e)
+        {
+            ds = (DataSet)Session["DATASET"];
+            transactionEx.ProperUpdate(ds);
+            ds = transactionEx.GetData("TestDBConnectionString", cmdParameters);
+            DataBind(ds);
         }
     }
 }

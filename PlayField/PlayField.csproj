@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>PlayField.PlayingWithDataTables</StartupObject>
+    <StartupObject>PlayField.CommonMain</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -50,6 +50,7 @@
     <Compile Include="Attributes\AttributeEx.cs" />
     <Compile Include="Attributes\HelpAttribute.cs" />
     <Compile Include="CommonMain.cs" />
+    <Compile Include="DataParallelism.cs" />
     <Compile Include="EnumEx.cs" />
     <Compile Include="EventsExMain.cs" />
     <Compile Include="FileIOEx\FileIOEx.cs" />

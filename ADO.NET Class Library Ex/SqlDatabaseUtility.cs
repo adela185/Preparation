@@ -19,6 +19,31 @@ namespace ADO.NET_Class_Library_Ex
             return cn;
         }
 
+        public DataSet MergeEx()
+        {
+            DataSet ds = new DataSet();
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["TestDBConnectionString"].ConnectionString))
+            {
+                SqlDataAdapter adp = new SqlDataAdapter("Select * From Color", con);
+                con.Open();
+
+                //adp.FillSchema(ds, SchemaType.Source, "Color");
+                adp.Fill(ds, "Color");
+
+                DataSet extraDS = new DataSet();
+                extraDS.ReadXml(@"C:\Users\NosyT\source\repos\Preparation\ADO.NET Class Library Ex\Color.xml", XmlReadMode.InferSchema); //Should default to this anyway
+                //extraDS.AcceptChanges();
+                
+                ds.Merge(extraDS, true/*, MissingSchemaAction.Ignore*/);
+
+                
+
+                //string debug = $"{ds.Tables["Color"].Rows[5].RowState}, {ds.Tables["Color"].Rows[5]["name", DataRowVersion.Original]}, {ds.Tables["Color"].Rows[5]["name", DataRowVersion.Current]}" +
+                //    $" {ds.Tables["Color"].Rows[12].RowState}, {ds.Tables["Color"].Rows[12]["name", DataRowVersion.Original]}, {ds.Tables["Color"].Rows[12]["name", DataRowVersion.Original]}";
+            }
+            return ds;
+        }
+
         public DataSet ExecuteQuery(string connectionName, string storedProcName, Dictionary<string, SqlParameter> procParameters)
         {
             DataSet ds = new DataSet();

@@ -17,7 +17,12 @@ namespace PlayField
             //lq.QueryCollection();
             //lq.QueryAnimalData();
 
-            SqlBulkCopyBatchEx.BulkCopyByBatch();
+            //SqlBulkCopyBatchEx.BulkCopyByBatch();
+
+            //Parallel.For(1, 100, (i) => Console.WriteLine(i));
+
+            DataParallelism.GetFileCount();
+
 
             Console.ReadLine();
         }

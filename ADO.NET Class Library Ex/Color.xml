@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Data>
+  <Color>
+    <name>AmberT</name>
+    <hex>1234FF</hex>
+  </Color>
+  <Color>
+    <name>TealT</name>
+    <hex>5678FF</hex>
+  </Color>
+  <Color>
+    <name>TurquioseT</name>
+    <hex>123456</hex>
+  </Color>
+</Data>

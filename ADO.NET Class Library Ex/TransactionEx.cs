@@ -158,7 +158,21 @@ namespace ADO.NET_Class_Library_Ex
                     }
                 }
             }
+        }
 
+        public void ProperUpdate(DataSet ds)
+        {
+            using(SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["TestDBConnectionString"].ConnectionString))
+            {
+                con.Open();
+                using(SqlDataAdapter adpt = new SqlDataAdapter("Select * From Color", con))
+                {
+                    SqlCommandBuilder builder = new SqlCommandBuilder(adpt);
+                    DataSet changedRows = ds.GetChanges();
+
+                    adpt.Update(changedRows.Tables[0]);
+                }
+            }
         }
 
         public async Task<string> InsertDBAsync(string constr, Dictionary<string, SqlParameter> parameters, CancellationToken cancellationToken)

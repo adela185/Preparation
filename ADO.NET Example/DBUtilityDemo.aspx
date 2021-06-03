@@ -33,7 +33,9 @@
                     <asp:CommandField ShowDeleteButton="true" />
                 </Columns>
             </asp:GridView>
-            <asp:Button ID="btnCancelLoad" runat="server" OnClick="btnCancelLoad_Click" Text="Cancel Load" />
+            &nbsp;<asp:Button ID="btnCancelLoad" runat="server" OnClick="btnCancelLoad_Click" Text="Cancel Load" />
+            <br />
+            <asp:Button ID="btnUpdateDB" runat="server" OnClick="btnUpdateDB_Click" Text="UpdateDB" />
             <br />
             <asp:Button ID="btnTestStuff" runat="server" OnClick="btnTestStuff_Click" Text="TestStuff" />
             <br />
