@@ -276,6 +276,41 @@ namespace PlayField
             Console.WriteLine(row["ParentItem", DataRowVersion.Original] + " - " + row.RowState.ToString() + $": {row["ParentItem"]}\n");
         }
 
+        public static void DatasetCopyShowcase()
+        {
+            DataSet customerDataSet = new DataSet();
+            customerDataSet.Tables.Add(new DataTable("Customers"));
+            customerDataSet.Tables["Customers"].Columns.Add("Name", typeof(string));
+            customerDataSet.Tables["Customers"].Columns.Add("CountryRegion", typeof(string));
+            customerDataSet.Tables["Customers"].Rows.Add("Juan", "Spain");
+            customerDataSet.Tables["Customers"].Rows.Add("Johann", "Germany");
+            customerDataSet.Tables["Customers"].Rows.Add("John", "UK");
+
+            DataSet germanyCustomers = customerDataSet.Clone();
+
+            DataRow[] copyRows =
+              customerDataSet.Tables["Customers"].Select("CountryRegion = 'Germany'");
+
+            DataTable customerTable = germanyCustomers.Tables["Customers"];
+
+            foreach (DataRow copyRow in copyRows)
+                customerTable.ImportRow(copyRow);
+
+            foreach (DataColumn column in customerTable.Columns)
+            {
+                Console.Write(column.ColumnName + " ");
+            }
+            Console.WriteLine();
+            foreach (DataRow row in customerTable.Rows)
+            {
+                foreach (DataColumn column in customerTable.Columns)
+                {
+                    Console.Write(row[column] + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
         public static void Main(string[] args)
         {
             MakeDataTables();
@@ -288,6 +323,7 @@ namespace PlayField
             Console.WriteLine("I'll now \"undo\" my changes, and revert back to normal: ");
             ShowTable(ds, 0);
             Show();
+            DatasetCopyShowcase();
             
             Console.ReadLine();
         }

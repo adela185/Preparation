@@ -169,9 +169,26 @@ namespace ADO.NET_Class_Library_Ex
                 {
                     SqlCommandBuilder builder = new SqlCommandBuilder(adpt);
                     DataSet changedRows = ds.GetChanges();
+                    adpt.RowUpdated += Adpt_RowUpdated;
 
                     adpt.Update(changedRows.Tables[0]);
+
+                    DataRow[] errRows = ds.Tables["Color"].GetErrors();
+                    foreach (DataRow errRow in errRows)
+                    {
+                        errRow.RejectChanges();
+                        errRow.RowError = null;
+                    }
                 }
+            }
+        }
+
+        private void Adpt_RowUpdated(object sender, SqlRowUpdatedEventArgs args)
+        {
+            if (args.Status == UpdateStatus.ErrorsOccurred)
+            {
+                args.Row.RowError = args.Errors.Message;
+                args.Status = UpdateStatus.SkipCurrentRow;
             }
         }
 
