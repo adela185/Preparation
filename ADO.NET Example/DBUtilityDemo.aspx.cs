@@ -38,8 +38,11 @@ namespace ADO.NET_Example
             ds = dbUtility.MergeEx();
             Session["DATASET"] = ds;
 
+            DataView dv = ds.Tables[0].DefaultView;
+            dv.Sort = "colorId, name, hex";
+
             if (ds != null)
-                gvColor.DataSource = ds;
+                gvColor.DataSource = dv;
             else
                 ltReport.Text = "Error: Gridview Datasource null.";
 

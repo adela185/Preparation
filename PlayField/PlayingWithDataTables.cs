@@ -42,23 +42,6 @@ namespace PlayField
             Console.WriteLine();
         }
 
-        private static void MakeDataRelation()
-        {
-            DataColumn parentColumn = ds.Tables["ParentTable"].Columns["id"];
-            DataColumn childColumn = ds.Tables["ChildTable"].Columns["ParentID"];
-            DataRelation relation = new DataRelation("parent2Child", parentColumn, childColumn);
-            ds.Tables["ChildTable"].ParentRelations.Add(relation);
-
-            DataRelation childDetailRelation = ds.Relations.Add("childDetail", 
-                ds.Tables["ChildTable"].Columns["ChildID"], 
-                ds.Tables["ChildDetails"].Columns["ChildID"]/*, false*/);
-
-            DataRelation childSecondParentRelation = ds.Relations.Add("childSecondParent",
-                ds.Tables["SecondParentTable"].Columns["SecondParentID"],
-                ds.Tables["ChildDetails"].Columns["SecondParentID"]);
-
-        }
-
         private static void Show()
         {
             foreach (DataRow row in ds.Tables["ParentTable"].Rows)
@@ -215,7 +198,7 @@ namespace PlayField
             {
                 row = table.NewRow();
                 row["ChildID"] = i + 5;
-                row["ChildItem"] = $"Item: {i}";
+                row["ChildItem"] = $"Item: {i + 5}";
                 row["ParentID"] = 1;
                 table.Rows.Add(row);
             }
@@ -223,7 +206,7 @@ namespace PlayField
             {
                 row = table.NewRow();
                 row["ChildID"] = i + 10;
-                row["ChildItem"] = $"Item: {i}";
+                row["ChildItem"] = $"Item: {i + 10}";
                 row["ParentID"] = 2;
                 table.Rows.Add(row);
             }
@@ -309,21 +292,241 @@ namespace PlayField
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine();
+        }
+
+        private static void MakeDataRelation()
+        {
+            DataColumn parentColumn = ds.Tables["ParentTable"].Columns["id"];
+            DataColumn childColumn = ds.Tables["ChildTable"].Columns["ParentID"];
+            DataRelation relation = new DataRelation("parent2Child", parentColumn, childColumn);
+            ds.Tables["ChildTable"].ParentRelations.Add(relation);
+
+            DataRelation childDetailRelation = ds.Relations.Add("childDetail",
+                ds.Tables["ChildTable"].Columns["ChildID"],
+                ds.Tables["ChildDetails"].Columns["ChildID"]/*, false*/);
+
+            DataRelation childSecondParentRelation = ds.Relations.Add("childSecondParent",
+                ds.Tables["SecondParentTable"].Columns["SecondParentID"],
+                ds.Tables["ChildDetails"].Columns["SecondParentID"]);
+
+        }
+
+        public static void FKConstriants()
+        {
+            ForeignKeyConstraint parent2ChildFK = new ForeignKeyConstraint("parent2ChildFK", ds.Tables["ParentTable"].Columns["id"], ds.Tables["ChildTable"].Columns["ParentID"]);
+            parent2ChildFK.DeleteRule = Rule.Cascade;
+            ds.Tables["ChildTable"].Constraints.Add(parent2ChildFK);//Already added via relation with default Rule.None
+        }
+
+        public static void RowStatePlaying()
+        {
+            ds.AcceptChanges();
+            //FKConstriants();
+            ds.Tables["ParentTable"].ChildRelations["parent2Child"].ChildKeyConstraint.DeleteRule = Rule.Cascade; //Rule.None would strand child rows
+            ds.Tables["ParentTable"].ChildRelations["parent2Child"].ChildKeyConstraint.UpdateRule = Rule.Cascade;
+            //ds.Tables["ParentTable"].Rows.RemoveAt(2); //Row States for Parent and Child Row States will be marked as deleted
+            ds.Tables["ParentTable"].Rows[2].Delete();
+            ds.Tables["ParentTable"].ChildRelations["parent2Child"].ChildKeyConstraint.AcceptRejectRule = AcceptRejectRule.Cascade;
+            ds.Tables["ChildTable"].ChildRelations["childDetail"].ChildKeyConstraint.AcceptRejectRule = AcceptRejectRule.Cascade;
+            //ds.Tables["ParentTable"].RejectChanges();
+
+            DataRow[] deletedRows = ds.Tables["ParentTable"].Select(null, null, DataViewRowState.Deleted);
+            //ds.AcceptChanges();
+            foreach (DataColumn column in ds.Tables["ParentTable"].Columns)
+                Console.Write("\t{0}", column.ColumnName);
+
+            Console.WriteLine("\tRowState");
+
+            foreach (DataRow row in deletedRows)
+            {
+                foreach (DataColumn column in ds.Tables["ParentTable"].Columns)
+                    Console.Write("\t{0}", row[column, DataRowVersion.Original]);
+
+                Console.WriteLine("\t" + row.RowState);
+            }
+            Console.WriteLine();
+
+            DataTable table = new DataTable();
+            DataTableReader rdr = new DataTableReader(ds.Tables["SecondParentTable"]);
+            table.Load(rdr, LoadOption.Upsert);
+            //Show();
+        }
+        
+        public static void Edit()
+        {
+            ds.AcceptChanges();
+            ds.Tables["ParentTable"].Rows[2].BeginEdit();
+            ds.Tables["ParentTable"].ColumnChanged += new DataColumnChangeEventHandler(OnColumnChanged);
+            ds.Tables["ParentTable"].Rows[2]["ParentItem"] = "t";
+            ds.Tables["ParentTable"].Rows[2].EndEdit();
+        }
+
+        private static void OnColumnChanged(object sender, DataColumnChangeEventArgs e)
+        {
+            if (e.Column.ColumnName == "ParentItem")
+                if (e.ProposedValue.ToString() == "t")
+                {
+                    Console.WriteLine($"Edit {e.Row["ParentItem", DataRowVersion.Proposed]} can't be blank");
+                    e.Row.EndEdit();
+                }
+        }
+
+        private static void ErrorRows()
+        {
+            ds.Tables["ParentTable"].RowChanged += new DataRowChangeEventHandler(OnRowChanged);
+
+            for (int i = 5; i < 10; i++)
+                ds.Tables["ParentTable"].Rows.Add(new Object[] { i, (i * 100).ToString() });
+
+            if (ds.Tables["ParentTable"].HasErrors)
+            {
+                Console.WriteLine("Errors in table: " + ds.Tables["ParentTable"].TableName);
+                foreach (DataRow row in ds.Tables["ParentTable"].GetErrors())
+                {
+                    Console.WriteLine($"ErrorID: {row[0]} and ErrorItem: {row[1]}\n");
+                }
+            }
+
+            ds.Tables["ParentTable"].Columns[0].ReadOnly = false;
+            int id = 3;
+            if (ds.Tables["ParentTable"].HasErrors)
+            {
+                foreach (DataRow errRow in ds.Tables["ParentTable"].GetErrors())
+                {
+                    if (errRow.RowError == "Error")
+                    {
+                        errRow[0] = id;
+                        errRow[1] = "ParentItem " + id++;
+                        errRow.RowError = "";
+                    }
+                    else
+                        errRow.RejectChanges();
+                }
+            }
+            ds.AcceptChanges();
+
+            Console.WriteLine();
+            foreach (DataRow row in ds.Tables["ParentTable"].Rows)
+            {
+                Console.WriteLine($"ParentID: {row[0]} and ParentItem: {row[1]}\n");
+            }
+        }
+
+        private static void OnRowChanged(object sender, DataRowChangeEventArgs e)
+        {
+            if ((int)e.Row[0] != 3)
+                e.Row.RowError = "Error";
+        }
+
+        private static void UsingDataReader()
+        {
+            //DataTableReader rdr = new DataTableReader(ds.Tables["SecondParentTable"]);
+            DataTableReader rdr = ds.CreateDataReader();
+
+            do
+            {
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        for (int i = 0; i < rdr.FieldCount; i++)
+                        {
+                            Console.Write(rdr[i] + " ");
+                        }
+                        Console.WriteLine();
+                    }
+                } 
+                else
+                    Console.WriteLine("Empty");
+            } while (rdr.NextResult());
+        }
+
+        private static void DataViewing()
+        {
+            DataView dv = new DataView(ds.Tables["ChildDetails"], "SecondParentID = 1", "Quantity", DataViewRowState.CurrentRows);
+            WriteView(dv);
+            Console.WriteLine("Default:");
+            //dv = ds.Tables["ChildDetails"].DefaultView;
+            dv.Table.Rows[0]["Quantity"] = 70;
+            WriteView(dv);
+            //dv.RowStateFilter = DataViewRowState.ModifiedOriginal;
+            Console.WriteLine("Original");
+            WriteView(dv);
+            Console.WriteLine();
+
+            int index = dv.Find(3);
+            for (int i = 0; i < dv.Table.Columns.Count; i++)
+                Console.Write($"{dv[index][i]}\t");
+            Console.WriteLine();
+
+            DataRowView[] foundRows = dv.FindRows(3);
+            foreach (DataRowView row in foundRows) 
+            { 
+                for (int i = 0; i < dv.Table.Columns.Count; i++)
+                    Console.Write($"{row[i]}\t");
+                Console.WriteLine();
+            }
+
+            dv = new DataView(ds.Tables["ParentTable"], null, "id", DataViewRowState.CurrentRows);
+            foreach (DataRowView row in dv)
+            {
+                Console.WriteLine(row["ParentItem"]);
+                DataView prodView = row.CreateChildView("parent2Child");
+                prodView.Sort = "ChildItem";
+                foreach (DataRowView prodRow in prodView)
+                {
+                    Console.WriteLine($"\t{prodRow["ChildItem"]}");
+                }
+            }
+            Console.WriteLine();
+
+            DataRowView newRowView = dv.AddNew();
+            newRowView["id"] = 3;
+            newRowView["ParentItem"] = "ParentItem 3";
+            newRowView.EndEdit();
+            WriteView(dv);
+
+            DataViewManager viewManager = new DataViewManager(ds);
+            foreach (DataViewSetting viewSetting in viewManager.DataViewSettings)
+            {
+                viewSetting.ApplyDefaultSort = true;
+            }
+            viewManager.DataViewSettings["ParentTable"].Sort = "Parent Item";
+        }
+
+        private static void WriteView(DataView dv)
+        {
+            foreach (DataRowView rowView in dv)
+            {
+                for(int i = 0; i < dv.Table.Columns.Count; i++)
+                    Console.Write($"{rowView[i]}\t");
+                Console.WriteLine();
+            }
         }
 
         public static void Main(string[] args)
         {
             MakeDataTables();
-            ShowTable(ds, 0);
-            ShowTable(ds, 1);
+            //ShowTable(ds, 0);
+            //ShowTable(ds, 1);
             ds.AcceptChanges();
-            MakeChanges();
-            ShowTable(ds, 0);
-            ds.RejectChanges();
-            Console.WriteLine("I'll now \"undo\" my changes, and revert back to normal: ");
-            ShowTable(ds, 0);
-            Show();
-            DatasetCopyShowcase();
+            //MakeChanges();
+            //ShowTable(ds, 0);
+            //ds.RejectChanges();
+            //Console.WriteLine("I'll now \"undo\" my changes, and revert back to normal: ");
+            //ShowTable(ds, 0);
+            //Show();
+            //DatasetCopyShowcase();
+
+            //RowStatePlaying();
+
+            //Edit();
+            //ErrorRows();
+
+            //UsingDataReader();
+
+            DataViewing();
             
             Console.ReadLine();
         }

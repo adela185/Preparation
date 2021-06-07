@@ -21,7 +21,12 @@ namespace PlayField
 
             //Parallel.For(1, 100, (i) => Console.WriteLine(i));
 
-            DataParallelism.GetFileCount();
+            //DataParallelism.GetFileCount();
+            //DataParallelism.PartitionerEx();
+            //DataParallelism.CallingABreak();
+            //DataParallelism.ThreadLocals();
+
+            PLINQPlaying.ParallelQuery();
 
 
             Console.ReadLine();
