@@ -27,14 +27,27 @@ namespace ADO.NET_Class_Library_Ex
                 SqlDataAdapter adp = new SqlDataAdapter("Select * From Color", con);
                 con.Open();
 
+                adp.InsertCommand = new SqlCommand();
+                adp.InsertCommand.Connection = con;
+                adp.InsertCommand.CommandText = "sp_Color_AddWithIdentity";
+                adp.InsertCommand.CommandType = CommandType.StoredProcedure;
+                adp.InsertCommand.Parameters.Add(new SqlParameter("@name", SqlDbType.NVarChar, 50, "name"));
+                adp.InsertCommand.Parameters.Add(new SqlParameter("@hex", SqlDbType.NChar, 6, "hex"));
+                SqlParameter parameter = adp.InsertCommand.Parameters.Add("@Identity", SqlDbType.Int, 0, "colorId");
+                parameter.Direction = ParameterDirection.Output;
+                adp.InsertCommand.UpdatedRowSource = UpdateRowSource.Both;
+                adp.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+
                 //adp.FillSchema(ds, SchemaType.Source, "Color");
                 adp.Fill(ds, "Color");
 
+                adp.RowUpdated += Adp_RowUpdated;
+
                 DataSet extraDS = new DataSet();
-                extraDS.ReadXml(@"C:\Users\NosyT\source\repos\Preparation\ADO.NET Class Library Ex\Color.xml", XmlReadMode.InferSchema); //Should default to this anyway
-                //extraDS.AcceptChanges();
-                
-                ds.Merge(extraDS, true/*, MissingSchemaAction.Ignore*/);
+                extraDS.ReadXml(@"C:\Users\NosyT\source\repos\Preparation\ADO.NET Class Library Ex\Color.xml", XmlReadMode.InferSchema);
+                adp.Update(extraDS.Tables[0]);
+
+                ds.Merge(extraDS, true, MissingSchemaAction.AddWithKey);
 
                 
 
@@ -42,6 +55,15 @@ namespace ADO.NET_Class_Library_Ex
                 //    $" {ds.Tables["Color"].Rows[12].RowState}, {ds.Tables["Color"].Rows[12]["name", DataRowVersion.Original]}, {ds.Tables["Color"].Rows[12]["name", DataRowVersion.Original]}";
             }
             return ds;
+        }
+
+        private void Adp_RowUpdated(object sender, SqlRowUpdatedEventArgs e)
+        {
+            // If this is an insert, then skip this row.
+            if (e.StatementType == StatementType.Insert)
+            {
+                e.Status = UpdateStatus.SkipCurrentRow;
+            }
         }
 
         public DataSet ExecuteQuery(string connectionName, string storedProcName, Dictionary<string, SqlParameter> procParameters)
@@ -87,7 +109,7 @@ namespace ADO.NET_Class_Library_Ex
                 adpt.Fill(table);
                     
                 DataRow row = table.NewRow();
-                foreach (var pair in procParameters)
+                foreach (KeyValuePair<string, SqlParameter> pair in procParameters)
                 {
                     row[$"{pair.Key}"] = $"{pair.Value.Value}";
                 }

@@ -56,6 +56,7 @@
     <Compile Include="Color.cs" />
     <Compile Include="SqlDataAdapterTranscationalManagement.cs" />
     <Compile Include="SqlDatabaseUtility.cs" />
+    <Compile Include="SqlParameterEx.cs" />
     <Compile Include="TransactionEx.cs" />
   </ItemGroup>
   <ItemGroup>

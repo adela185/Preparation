@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Data>
   <Color>
+    <colorId></colorId>
     <name>AmberT</name>
     <hex>1234FF</hex>
   </Color>
   <Color>
+    <colorId></colorId>
     <name>TealT</name>
     <hex>5678FF</hex>
   </Color>
   <Color>
+    <colorId></colorId>
     <name>TurquioseT</name>
     <hex>123456</hex>
   </Color>

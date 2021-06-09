@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PlayField
@@ -50,6 +51,62 @@ namespace PlayField
             ordered.ForEach(i => Console.Write(i + "-"));
             watch.Stop();
             Console.WriteLine(watch.Elapsed);
+
+            Console.WriteLine();
+            range = Enumerable.Range(100, 10000);
+            ordered = range.AsParallel().AsOrdered().Take(100).AsUnordered().Select(i => i * i).ToList();
+        }
+
+        public static void Merges()
+        {
+            var range = ParallelEnumerable.Range(1, 100);
+            Stopwatch watch = null;
+            ParallelQuery<int> notBufferedQuery =
+            range.WithMergeOptions(ParallelMergeOptions.NotBuffered)
+             .Where(i => i % 10 == 0)
+             .Select(x => {
+                 Thread.SpinWait(1000);
+                 return x;
+             });
+            watch = Stopwatch.StartNew();
+            foreach (var item in notBufferedQuery)
+            {
+                Console.WriteLine($"{item}:{watch.ElapsedMilliseconds}");
+            }
+            Console.WriteLine($"\nNotBuffered Full Result returned in { watch.ElapsedMilliseconds } ms");
+            watch.Stop();
+
+            ParallelQuery<int> query = 
+                range.WithMergeOptions(ParallelMergeOptions.AutoBuffered)
+                .Where(i => i % 10 == 0)
+                .Select(x => 
+                { 
+                    Thread.SpinWait(1000); 
+                    return x; 
+                });
+            watch = Stopwatch.StartNew();
+            foreach (var item in query)
+            {
+                Console.WriteLine($"{item}:{watch.ElapsedMilliseconds}");
+            }
+            Console.WriteLine($"\nAutoBuffered Full Result returned in { watch.ElapsedMilliseconds} ms");
+            watch.Stop();
+
+            ParallelQuery<int> fullyBufferedQuery =
+                range.WithMergeOptions(ParallelMergeOptions.FullyBuffered)
+                .Where(i => i % 10 == 0)
+                .Select(x =>
+                {
+                    Thread.SpinWait(1000);
+                    return x;
+                });
+            watch = Stopwatch.StartNew();
+            foreach (var item in fullyBufferedQuery)
+            {
+                Console.WriteLine($"{item}:{watch.ElapsedMilliseconds}");
+            }
+            Console.WriteLine($"\nFully Buffered Full Result returned in { watch.ElapsedMilliseconds} ms");
+            watch.Stop();
         }
     }
 }

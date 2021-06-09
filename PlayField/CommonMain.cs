@@ -17,6 +17,8 @@ namespace PlayField
             //lq.QueryCollection();
             //lq.QueryAnimalData();
 
+            LINQ2DataSet.Selection();
+
             //SqlBulkCopyBatchEx.BulkCopyByBatch();
 
             //Parallel.For(1, 100, (i) => Console.WriteLine(i));
@@ -26,7 +28,8 @@ namespace PlayField
             //DataParallelism.CallingABreak();
             //DataParallelism.ThreadLocals();
 
-            PLINQPlaying.ParallelQuery();
+            //PLINQPlaying.ParallelQuery();
+            //PLINQPlaying.Merges();
 
 
             Console.ReadLine();

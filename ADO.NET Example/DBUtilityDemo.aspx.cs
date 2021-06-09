@@ -35,7 +35,7 @@ namespace ADO.NET_Example
 
         private void Load()
         {
-            ds = dbUtility.MergeEx();
+            ds = transactionEx.GetData("TestDBConnectionString", cmdParameters);
             Session["DATASET"] = ds;
 
             DataView dv = ds.Tables[0].DefaultView;
@@ -147,7 +147,10 @@ namespace ADO.NET_Example
             //dAV.Diagnosis();
             //await transactionEx.UpdateViaAdapter("TestDBConnectionString");
             //transactionEx.UpdateUsingSqlBulkCopyNoXML("TestDBConnectionString", (DataTable)Session["DATATABLE"]);
-            transactionEx.CopyOver2DataBase("TestDBConnectionString", "TestDBConnectionString2");
+            //transactionEx.CopyOver2DataBase("TestDBConnectionString", "TestDBConnectionString2");
+            //SqlParameterEx.AnotherAdd();
+            SqlParameterEx.AnotherGet();
+            await PageLoadReg();
         }
 
         protected void btnCancelLoad_Click(object sender, EventArgs e)

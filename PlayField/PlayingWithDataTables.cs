@@ -505,6 +505,25 @@ namespace PlayField
             }
         }
 
+        private static void Querying()
+        {
+            DataTable table = ds.Tables["ParentTable"];
+
+            IEnumerable<DataRow> query =
+                from parent in table.AsEnumerable()
+                where parent.Field<int>("id") == 2
+                select parent;
+
+            foreach (DataRow row in query)
+            {
+                Console.WriteLine($"Class: {row.Field<string>("ParentItem")}");
+                foreach (DataRow childRow in row.GetChildRows("parent2Child"))
+                {
+                    Console.WriteLine($"\t{childRow.Field<string>("ChildItem")}");
+                }
+            }
+        }
+
         public static void Main(string[] args)
         {
             MakeDataTables();
@@ -526,7 +545,9 @@ namespace PlayField
 
             //UsingDataReader();
 
-            DataViewing();
+            //DataViewing();
+
+            Querying();
             
             Console.ReadLine();
         }

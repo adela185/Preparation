@@ -54,6 +54,7 @@
     <Compile Include="EnumEx.cs" />
     <Compile Include="EventsExMain.cs" />
     <Compile Include="FileIOEx\FileIOEx.cs" />
+    <Compile Include="LINQ2DataSet.cs" />
     <Compile Include="LINQPlaying.cs" />
     <Compile Include="Pasted.cs" />
     <Compile Include="PLINQPlaying.cs" />
