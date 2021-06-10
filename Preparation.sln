@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{83BD1BF3-415
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedAsync", "AdvancedAsync\AdvancedAsync.csproj", "{D5AC4746-9C17-42B5-838B-F3A26D89A1BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayField.UnitTests", "PlayField.UnitTests\PlayField.UnitTests.csproj", "{E0D98613-BE6C-46F2-9795-C6F594455257}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{D5AC4746-9C17-42B5-838B-F3A26D89A1BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5AC4746-9C17-42B5-838B-F3A26D89A1BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5AC4746-9C17-42B5-838B-F3A26D89A1BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0D98613-BE6C-46F2-9795-C6F594455257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0D98613-BE6C-46F2-9795-C6F594455257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0D98613-BE6C-46F2-9795-C6F594455257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0D98613-BE6C-46F2-9795-C6F594455257}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,6 +107,7 @@ Global
 		{C062E87D-1A27-4BC4-B64E-CE09BC3A81E8} = {C8E4646C-5D02-45CE-BD4E-7644AC49784C}
 		{F2CD9DFD-2DC9-4AAF-ADEC-63F74E3B0C39} = {C8E4646C-5D02-45CE-BD4E-7644AC49784C}
 		{D5AC4746-9C17-42B5-838B-F3A26D89A1BD} = {83BD1BF3-4152-4913-B10C-AF9B684BD7B1}
+		{E0D98613-BE6C-46F2-9795-C6F594455257} = {40A95123-F80B-4B4B-92F7-AD4EFC5704A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63108DC7-C682-4A1E-A0FD-3E6497897036}

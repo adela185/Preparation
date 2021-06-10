@@ -12,7 +12,7 @@ namespace PlayField
     {
         private static System.Data.DataSet ds;
 
-        private static void MakeDataTables()
+        public static void MakeDataTables()
         {
             MakeParentTable();
             MakeSecondParentTable();
@@ -505,7 +505,7 @@ namespace PlayField
             }
         }
 
-        private static void Querying()
+        public static void Querying()
         {
             DataTable table = ds.Tables["ParentTable"];
 
