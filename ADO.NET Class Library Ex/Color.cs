@@ -9,6 +9,19 @@ namespace ADO.NET_Class_Library_Ex
 {
     public class Color
     {
+        public Color()
+        {
+
+        }
+        
+        public Color(int id)
+        {
+            this.ColorID = id;
+        }
+
+        [Required]
+        public int ColorID { get; }
+
         [Required(ErrorMessage = "Name is required"),
             StringLength(50, ErrorMessage = "Name too long; keep under 50 characters")]
         public string nm { get; set; }

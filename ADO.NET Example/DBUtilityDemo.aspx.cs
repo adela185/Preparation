@@ -26,6 +26,9 @@ namespace ADO.NET_Example
         {
             if (!IsPostBack)
             {
+                DictionaryPersonRepository repository = new DictionaryPersonRepository();
+                repository.Add(new Person { FirstName = "Joe", LastName = "Mama" });
+                PersonController personController = new PersonController(repository);
                 Load();
                 //StronglyTypedDataSetLoad();
                 //await PageLoadLINQ();

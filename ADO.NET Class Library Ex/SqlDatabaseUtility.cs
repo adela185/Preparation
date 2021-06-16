@@ -136,6 +136,11 @@ namespace ADO.NET_Class_Library_Ex
                         cmd.Parameters.Add(procParameter.Value);
                     }
                     rc = cmd.ExecuteNonQuery();
+
+                    SqlParameter idParam = new SqlParameter();
+                    bool status = procParameters.TryGetValue("colorId", out idParam);
+                    if(status)
+                        rc = (int)idParam.Value;
                 }
                 if(cn.State == ConnectionState.Open)
                     cn.Close();
