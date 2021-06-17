@@ -758,5 +758,17 @@
             To modify move field declaration from designer file to code-behind file.
             </remarks>
         </member>
+        <member name="T:ADO.NET_Example.Global">
+            <summary>
+            Global
+            </summary>
+        </member>
+        <member name="M:ADO.NET_Example.Global.Application_Start(System.Object,System.EventArgs)">
+            <summary>
+            App_Start
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
     </members>
 </doc>

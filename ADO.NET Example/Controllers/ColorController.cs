@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace ADO.NET_Example.Controllers
@@ -118,6 +119,7 @@ namespace ADO.NET_Example.Controllers
         }
     }
 
+    [EnableCorsAttribute("*", "*", "*")]
     [RoutePrefix("api/Color")]
     public class ColorController : ApiController
     {
@@ -128,55 +130,109 @@ namespace ADO.NET_Example.Controllers
         /// </summary>
         [HttpGet]
         [Route("IActionGet")]
-        [ApiExplorerSettings(IgnoreApi=true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IHttpActionResult IActionGet()
         {
             return new TextResult("Hello", Request);
         }
 
+        [BasicAuthentication]
         [HttpGet]
         [Route("")]
         // GET: api/Color
-        public IEnumerable<Color> Get()
+        public HttpResponseMessage Get(string id = "All")
         {
-            var r = access.Get();
-            return r;
+            string username = Thread.CurrentPrincipal.Identity.Name;
+            switch (username.ToLower()) 
+            {
+                case "admin":
+                    var r = access.Get();
+                    if (id.ToLower() == "all")
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, r);
+                    }
+                    else {
+                        int target = Convert.ToInt32(id.Substring(1));
+                        switch (id.Substring(0, 1))
+                        {
+                            case ">":
+                                return Request.CreateResponse(HttpStatusCode.OK, r.Where(color => color.ColorID >= target));
+                            case "<":
+                                return Request.CreateResponse(HttpStatusCode.OK, r.Where(color => color.ColorID <= target));
+                            default:
+                                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, $"Value for id should be All, <5, or >5. {id} is invalid.");
+                        }
+                    }
+                case "guest":
+                    r = access.Get();
+                    if (id.ToLower() == "all")
+                        return Request.CreateResponse(HttpStatusCode.OK, r);
+                    else
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, $"id must be default, or All. api/Color?{id} is an unauthorized privilege.");
+                default:
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
         }
 
         // GET: api/Color/5
-        public IHttpActionResult Get(int id)
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize]
+        public HttpResponseMessage Get(int id)
         {
             Color color;
             if (!access.TryGet(id, out color))
-                return NotFound(); //throw new HttpResponseException(HttpStatusCode.NotFound);
-            return Ok(color);
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"ID: {id} Not Found"); //throw new HttpResponseException(HttpStatusCode.NotFound);
+            return Request.CreateResponse(HttpStatusCode.OK, color);
         }
 
         // POST: api/Color
+        [HttpPost]
+        [Route("")]
         public HttpResponseMessage Post([FromBody] Color value)
         {
-            Color color = access.Add(value);
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, color);
-            //response.Content = new StringContent("Hello", Encoding.Unicode);
-            response.Headers.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue()
+            try
             {
-                MaxAge = TimeSpan.FromMinutes(20)
-            };
-            return response;
+                Color color = access.Add(value);
+                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, color);
+                //response.Content = new StringContent("Hello", Encoding.Unicode);
+                response.Headers.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue()
+                {
+                    MaxAge = TimeSpan.FromMinutes(20)
+                };
+                response.Headers.Location = new Uri(Request.RequestUri + "/" + color.ColorID.ToString());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
         }
 
         // PUT: api/Color/5
-        public void Put(int id, [FromBody]Color value)
+        [Route("{id}")]
+        public HttpResponseMessage Put(int id, [FromBody]Color value)
         {
             if (!access.Update(value, id))
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"{id} Not Found");
+            Color color = new Color(id) { nm = value.nm, hex = value.hex };
+            return Request.CreateResponse(HttpStatusCode.Created, color);
         }
 
         // DELETE: api/Color/5
-        public void Delete(int id)
+        [Route("{id}")]
+        public HttpResponseMessage Delete(int id)
         {
-            if (!access.Delete(id))
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+            try
+            {
+                if (!access.Delete(id))
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"{id} Not Found");
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
         }
     }
 

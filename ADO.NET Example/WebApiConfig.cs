@@ -21,6 +21,11 @@ namespace ADO.NET_Example
 
             config.Formatters.Add(new ColorItemCsvFormatter());
 
+            config.EnableCors();
+
+            config.Filters.Add(new RequireHttpsAttribute());
+            //config.Filters.Add(new BasicAuthenticationAttribute());
+
             SetJsonSettings(config);
 
             config.EnsureInitialized();
