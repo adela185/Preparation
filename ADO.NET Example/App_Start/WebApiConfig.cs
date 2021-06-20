@@ -1,4 +1,5 @@
 ﻿using ADO.NET_Example.Formatters;
+using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,9 @@ namespace ADO.NET_Example
     {
         public static void Register(HttpConfiguration config)
         {
+            //config.SuppressDefaultHostAuthentication();
+            //config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
+
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
@@ -24,7 +28,7 @@ namespace ADO.NET_Example
             config.EnableCors();
 
             config.Filters.Add(new RequireHttpsAttribute());
-            //config.Filters.Add(new BasicAuthenticationAttribute());
+            config.Filters.Add(new BasicAuthenticationAttribute());
 
             SetJsonSettings(config);
 

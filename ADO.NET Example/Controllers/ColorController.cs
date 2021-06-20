@@ -177,7 +177,6 @@ namespace ADO.NET_Example.Controllers
         // GET: api/Color/5
         [HttpGet]
         [Route("{id}")]
-        [Authorize]
         public HttpResponseMessage Get(int id)
         {
             Color color;
